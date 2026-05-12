@@ -3,191 +3,134 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Penca Liberty</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<title>Penca Liberty 2026</title>
 
 <style>
-body {
+body{
   margin:0;
-  font-family:'Poppins', sans-serif;
-  background: linear-gradient(135deg, #0b3d91, #001f4d);
+  font-family:Arial;
+  background:#0b3a6f;
   color:white;
 }
 
-/* HEADER */
-.header {
-  text-align:center;
-  padding:30px;
-}
-
-.logo {
-  width:180px;
-}
-
-/* CONTAINER */
-.container {
-  max-width:1100px;
+.container{
+  max-width:400px;
   margin:auto;
   padding:20px;
 }
 
-/* CARD */
-.card {
-  background:rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-  padding:20px;
-  border-radius:20px;
-  margin:15px 0;
-  box-shadow:0 10px 30px rgba(0,0,0,0.3);
-  animation:fade 0.5s ease;
+.card{
+  background:white;
+  color:black;
+  padding:15px;
+  border-radius:15px;
+  margin-top:15px;
 }
 
-@keyframes fade {
-  from{opacity:0; transform:translateY(15px);}
-  to{opacity:1;}
-}
-
-/* INPUTS */
-input {
+input{
+  width:100%;
   padding:10px;
+  margin:5px 0;
   border-radius:10px;
   border:none;
-  margin:5px;
-  width:80px;
-  text-align:center;
 }
 
-#nombre {
-  width:250px;
-}
-
-/* BUTTON */
-button {
-  padding:10px 20px;
-  border:none;
-  border-radius:25px;
-  background:linear-gradient(45deg,#00c2ff,#007bff);
-  color:white;
-  cursor:pointer;
-}
-
-button:hover {
-  transform:scale(1.05);
-}
-
-/* TABLE */
-table {
+button{
   width:100%;
-  margin-top:20px;
-  border-collapse:collapse;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  background:#0b3a6f;
+  color:white;
+  font-weight:bold;
 }
-
-td, th {
-  padding:12px;
-  border-bottom:1px solid rgba(255,255,255,0.2);
-}
-
-.top1{color:gold;}
-.top2{color:silver;}
-.top3{color:#cd7f32;}
-
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <img src="https://i.imgur.com/yourlogo.png" class="logo">
-  <h1>🏆 PENCA LIBERTY</h1>
-</div>
-
 <div class="container">
 
-  <div class="card">
-    <h2>Ingresá tu nombre</h2>
-    <input id="nombre" placeholder="Nombre / Agencia">
-  </div>
+<h2>⚽ Liberty 2026</h2>
 
-  <div id="partidos"></div>
+<div id="loginBox">
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
 
-  <div class="card">
-    <h2>Ranking en vivo</h2>
-    <table id="ranking"></table>
-  </div>
+<button onclick="login()">Ingresar</button>
+<button onclick="register()">Registrarse</button>
+</div>
+
+<div id="app" style="display:none;">
+<h3 id="nombre"></h3>
+
+<div class="card">
+<h4>Argentina vs Brasil</h4>
+
+<input id="gA" type="number" placeholder="Goles A">
+<input id="gB" type="number" placeholder="Goles B">
+
+<button onclick="guardar()">Guardar</button>
+</div>
+
+</div>
 
 </div>
 
 <script>
+const API = "https://script.google.com/macros/s/AKfycbxXF2g_80cnzR9m741tbg3lyGV2_XG4OmuKvyrNHh305L9OlOZ_L41Spx8LcfPen0d9fQ/exec";
 
-const SCRIPT = "PEGAR_WEBAPP";
-const PARTIDOS = "PEGAR_CSV_PARTIDOS";
-const RANKING = "PEGAR_CSV_RANKING";
+let userId = null;
 
-/* PARTIDOS */
-fetch(PARTIDOS)
-.then(r=>r.text())
+function login(){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"login",
+email:email.value,
+password:password.value
+})
+})
+.then(r=>r.json())
 .then(data=>{
-  let filas = data.split("\n").slice(1);
-  let html="";
-
-  filas.forEach(f=>{
-    let c = f.split(",");
-    if(c[7]!="ABIERTO") return;
-
-    html += `
-    <div class="card">
-      <h3>${c[1]} vs ${c[2]}</h3>
-      <p>${c[3]} ${c[4]}</p>
-
-      <input type="number" id="a${c[0]}" placeholder="${c[1]}">
-      <input type="number" id="b${c[0]}" placeholder="${c[2]}">
-
-      <br><br>
-      <button onclick="enviar(${c[0]})">Enviar Pronóstico</button>
-    </div>`;
-  });
-
-  document.getElementById("partidos").innerHTML = html;
+if(data.success){
+userId = data.userId;
+nombre.innerText = "Hola " + data.nombre;
+loginBox.style.display="none";
+app.style.display="block";
+}else{
+alert("Datos incorrectos");
+}
 });
-
-/* ENVIAR */
-function enviar(id){
-  fetch(SCRIPT,{
-    method:"POST",
-    body:JSON.stringify({
-      nombre:document.getElementById("nombre").value,
-      partido:id,
-      golesA:document.getElementById("a"+id).value,
-      golesB:document.getElementById("b"+id).value
-    })
-  })
-  .then(r=>r.text())
-  .then(msg=>alert(msg));
 }
 
-/* RANKING */
-setInterval(()=>{
-fetch(RANKING)
-.then(r=>r.text())
-.then(data=>{
-  let filas = data.split("\n").slice(1);
-  let html="<tr><th>Pos</th><th>Nombre</th><th>Puntos</th></tr>";
+function register(){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"register",
+nombre:email.value,
+email:email.value,
+password:password.value
+})
+})
+.then(()=>alert("Registrado"));
+}
 
-  filas.forEach((f,i)=>{
-    let c=f.split(",");
-    let cls=i==0?"top1":i==1?"top2":i==2?"top3":"";
-    html+=`<tr class="${cls}">
-      <td>${i+1}</td>
-      <td>${c[0]}</td>
-      <td>${c[1]}</td>
-    </tr>`;
-  });
-
-  document.getElementById("ranking").innerHTML=html;
-});
-},4000);
-
+function guardar(){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"guardarPronostico",
+userId:userId,
+partidoId:1,
+golesA:gA.value,
+golesB:gB.value
+})
+})
+.then(()=>alert("Pronóstico guardado"));
+}
 </script>
 
 </body>
