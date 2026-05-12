@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Admin Liberty</title>
+
+<style>
+body {
+  font-family:Arial;
+  background:#001f4d;
+  color:white;
+  text-align:center;
+}
+
+.container {
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+.card {
+  background:rgba(255,255,255,0.1);
+  padding:20px;
+  margin:15px;
+  border-radius:15px;
+}
+
+input, button {
+  padding:10px;
+  margin:5px;
+  border-radius:10px;
+  border:none;
+}
+
+button {
+  background:#00c2ff;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div id="login">
+  <h2>🔐 Admin</h2>
+  <input type="password" id="pass">
+  <button onclick="login()">Entrar</button>
+</div>
+
+<div id="panel" style="display:none;" class="container">
+
+  <div class="card">
+    <h2>Crear Partido</h2>
+    <input id="id" placeholder="ID">
+    <input id="a" placeholder="Equipo A">
+    <input id="b" placeholder="Equipo B">
+    <input id="fecha" placeholder="YYYY-MM-DD">
+    <input id="hora" placeholder="HH:MM">
+    <button onclick="crear()">Guardar</button>
+  </div>
+
+  <div class="card">
+    <h2>Cargar Resultado</h2>
+    <input id="rid" placeholder="ID">
+    <input id="ga" placeholder="Goles A">
+    <input id="gb" placeholder="Goles B">
+    <button onclick="resultado()">Guardar</button>
+  </div>
+
+  <div class="card">
+    <h2>Ranking</h2>
+    <button onclick="ranking()">Recalcular</button>
+  </div>
+
+</div>
+
+<script>
+
+const PASS="liberty25";
+const SCRIPT="PEGAR_WEBAPP";
+
+function login(){
+  if(document.getElementById("pass").value===PASS){
+    document.getElementById("login").style.display="none";
+    document.getElementById("panel").style.display="block";
+  } else alert("Error");
+}
+
+function crear(){
+fetch(SCRIPT,{method:"POST",
+body:JSON.stringify({
+action:"crear",
+id:id.value,a:a.value,b:b.value,fecha:fecha.value,hora:hora.value
+})}).then(r=>r.text()).then(alert);
+}
+
+function resultado(){
+fetch(SCRIPT,{method:"POST",
+body:JSON.stringify({
+action:"resultado",
+id:rid.value,ga:ga.value,gb:gb.value
+})}).then(r=>r.text()).then(alert);
+}
+
+function ranking(){
+fetch(SCRIPT,{method:"POST",
+body:JSON.stringify({action:"ranking"})
+}).then(r=>r.text()).then(alert);
+}
+
+</script>
+
+</body>
+</html>
